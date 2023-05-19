@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:lottie/lottie.dart';
 import 'package:nasa_app/src/models/asset_metadata_model.dart';
 import 'package:nasa_app/src/models/asset_metadata_response.dart';
 import 'package:nasa_app/src/repositories/data_repository/data_repository.dart';
@@ -21,6 +22,7 @@ class ImageDetailBodyWidget extends StatefulWidget {
 
 class _ImageDetailBodyWidgetState extends State<ImageDetailBodyWidget> {
   bool isLoading = false;
+  bool isError = false;
 
   late AssetMetadataModel assetMetadata;
 
@@ -34,6 +36,16 @@ class _ImageDetailBodyWidgetState extends State<ImageDetailBodyWidget> {
   Widget build(BuildContext context) {
     if (isLoading) {
       return _ImageDetailBodyLoading();
+    }
+
+    if (isError) {
+      return Column(
+        children: [
+          SizedBox(
+            child: Lottie.asset('assets/lotties/no-result.json'),
+          )
+        ],
+      );
     }
 
     return SingleChildScrollView(
@@ -134,6 +146,10 @@ class _ImageDetailBodyWidgetState extends State<ImageDetailBodyWidget> {
     if (response.code == 200) {
       setState(() {
         assetMetadata = response.data!;
+      });
+    } else {
+      setState(() {
+        isError = true;
       });
     }
 

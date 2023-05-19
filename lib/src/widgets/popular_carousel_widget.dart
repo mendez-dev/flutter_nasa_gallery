@@ -4,14 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../models/asset_model.dart';
-import '../models/collection_response.dart';
 import '../repositories/data_repository/data_repository.dart';
 import 'carousel_card_widget.dart';
 
 class PopularCarouselWidget extends StatefulWidget {
-  const PopularCarouselWidget({
-    super.key,
-  });
+  const PopularCarouselWidget({Key? key}) : super(key: key);
 
   @override
   State<PopularCarouselWidget> createState() => _PopularCarouselWidgetState();
@@ -20,6 +17,7 @@ class PopularCarouselWidget extends StatefulWidget {
 class _PopularCarouselWidgetState extends State<PopularCarouselWidget> {
   BuiltList<AssetModel> _assets = BuiltList<AssetModel>();
   bool isLoading = false;
+  bool isError = false;
 
   @override
   void initState() {
@@ -34,14 +32,14 @@ class _PopularCarouselWidgetState extends State<PopularCarouselWidget> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Text('Popular',
-                  style: Theme.of(context).textTheme.titleMedium)),
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child:
+                Text('Popular', style: Theme.of(context).textTheme.headline6),
+          ),
           CarouselSlider(
             options: CarouselOptions(
               aspectRatio: 1.2,
               enlargeCenterPage: false,
-              // viewportFraction: 0.8,
             ),
             items: List.generate(4, (index) {
               return const CarouselCardWidgetLoading();
@@ -51,18 +49,21 @@ class _PopularCarouselWidgetState extends State<PopularCarouselWidget> {
       );
     }
 
+    if (isError) {
+      return const SizedBox.shrink();
+    }
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Text('Popular',
-                style: Theme.of(context).textTheme.titleMedium)),
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Text('Popular', style: Theme.of(context).textTheme.headline6),
+        ),
         CarouselSlider(
           options: CarouselOptions(
             aspectRatio: 1.2,
             enlargeCenterPage: false,
-            // viewportFraction: 0.8,
           ),
           items: _assets.map((e) => CarouselCardWidget(asset: e)).toList(),
         ),
@@ -74,8 +75,13 @@ class _PopularCarouselWidgetState extends State<PopularCarouselWidget> {
     setState(() {
       isLoading = true;
     });
-    CollectionResponse response =
+
+    final response =
         await RepositoryProvider.of<DataRepository>(context).getPopular();
+
+    if (!mounted) {
+      return; // Verificar si el widget está montado antes de continuar
+    }
 
     setState(() {
       isLoading = false;
@@ -84,6 +90,10 @@ class _PopularCarouselWidgetState extends State<PopularCarouselWidget> {
     if (response.code == 200) {
       setState(() {
         _assets = response.data!.items;
+      });
+    } else {
+      setState(() {
+        isError = true;
       });
     }
   }

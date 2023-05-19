@@ -111,7 +111,7 @@ class VideoPlayerWidgetState extends State<VideoPlayerWidget> {
             ),
           ],
         ),
-           Positioned(
+        Positioned(
           top: 16,
           left: 16,
           child: IconButton(
@@ -142,7 +142,12 @@ class VideoPlayerWidgetState extends State<VideoPlayerWidget> {
         });
         return;
       }
-      _controller = VideoPlayerController.network(response.data.first);
+      // Verificamos si el url es https sino lo convertimos
+      String url = response.data.first;
+      if (!response.data.first.contains('https')) {
+        url = response.data.first.replaceFirst('http', 'https');
+      }
+      _controller = VideoPlayerController.network(url);
       await _controller.initialize();
 
       // Creamos el timer para actualizar el progreso del video

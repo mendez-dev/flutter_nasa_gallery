@@ -6,6 +6,9 @@ import 'package:nasa_app/src/repositories/network_repository/network_repository.
 import 'package:nasa_app/src/router/routes_handler.dart';
 import 'package:nasa_app/src/styles/theme.dart';
 
+import 'blocs/home/home_bloc.dart';
+import 'blocs/search/search_bloc.dart';
+
 void main() => runApp(const MyApp());
 
 class MyApp extends StatelessWidget {
@@ -22,11 +25,20 @@ class MyApp extends StatelessWidget {
                   networkRepository:
                       RepositoryProvider.of<NetworkRepository>(context)))
         ],
-        child: MaterialApp(
-          theme: themeData,
-          title: 'Material App',
-          onGenerateRoute: RoutesHandler().router.generator,
-          initialRoute: '/',
+        child: MultiBlocProvider(
+          providers: [
+            BlocProvider(create: (BuildContext context) => HomeBloc()),
+            BlocProvider(
+                create: (BuildContext context) => SearchBloc(
+                    dataRepository:
+                        RepositoryProvider.of<DataRepository>(context))),
+          ],
+          child: MaterialApp(
+            theme: themeData,
+            title: 'Material App',
+            onGenerateRoute: RoutesHandler().router.generator,
+            initialRoute: '/',
+          ),
         ));
   }
 }

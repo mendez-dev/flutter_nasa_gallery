@@ -49,7 +49,7 @@ class NetworkRepository {
   /// y tambien configura la base_url
   void _onRequest(
       RequestOptions options, RequestInterceptorHandler handler) async {
-    List<String> endpointsApiNasa = ['/asset/'];
+    List<String> endpointsApiNasa = ['/asset/', '/search'];
 
     // Si el path incluye alguno de los endpoints de la api de nasa cambiamos el baseUrl
     if (endpointsApiNasa.any((element) => options.path.contains(element))) {

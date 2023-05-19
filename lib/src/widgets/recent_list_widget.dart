@@ -1,6 +1,7 @@
 import 'package:built_collection/built_collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:lottie/lottie.dart';
 import 'package:nasa_app/src/models/asset_model.dart';
 import 'package:nasa_app/src/models/collection_response.dart';
 import 'package:nasa_app/src/widgets/recent_item_widget.dart';
@@ -17,6 +18,7 @@ class RecentListWidget extends StatefulWidget {
 class _RecentListWidgetState extends State<RecentListWidget> {
   BuiltList<AssetModel> _assets = BuiltList<AssetModel>();
   bool isLoading = false;
+  bool isError = false;
 
   @override
   void initState() {
@@ -39,9 +41,21 @@ class _RecentListWidgetState extends State<RecentListWidget> {
           const RecentItemWidgetLoading(),
           const RecentItemWidgetLoading(),
           const RecentItemWidgetLoading(),
+        ] else if (isError) ...[
+          Column(
+            children: [
+              SizedBox(
+                child: Lottie.asset('assets/lotties/no-internet.json'),
+              )
+            ],
+          )
         ] else ...[
           Column(
-            children: _assets.map((e) => RecentItemWidget(asset: e,)).toList(),
+            children: _assets
+                .map((e) => RecentItemWidget(
+                      asset: e,
+                    ))
+                .toList(),
           )
         ]
       ],
@@ -55,6 +69,10 @@ class _RecentListWidgetState extends State<RecentListWidget> {
     CollectionResponse response =
         await RepositoryProvider.of<DataRepository>(context).getRecent();
 
+    if (!mounted) {
+      return; // Verificar si el widget está montado antes de continuar
+    }
+
     setState(() {
       isLoading = false;
     });
@@ -62,6 +80,10 @@ class _RecentListWidgetState extends State<RecentListWidget> {
     if (response.code == 200) {
       setState(() {
         _assets = response.data!.items;
+      });
+    } else {
+      setState(() {
+        isError = true;
       });
     }
   }
